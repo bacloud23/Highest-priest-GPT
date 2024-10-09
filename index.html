@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q&A Chat App (Random Channel)</title>
+    <style>
+        /* Same dark and mysterious styling */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            background-image: url("./background.png")
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            background-color: #1e1e1ee0;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            border: 1px solid #333;
+        }
+        h1 { text-align: center; margin-bottom: 20px; font-size: 24px; color: #f5f5f5; text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
+        .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
+        .form-group label { font-size: 14px; margin-bottom: 5px; color: #f0f0f0; text-shadow: 0 0 5px rgba(255, 255, 255, 0.2); }
+        .form-group input {
+            padding: 10px; font-size: 16px; border: 1px solid #555;
+            border-radius: 5px; background-color: #2c2c2c; color: #f5f5f5; transition: border-color 0.3s;
+        }
+        .form-group input:focus { border-color: #7f00ff; outline: none; box-shadow: 0 0 10px #7f00ff; }
+        .btn {
+            padding: 12px; background-color: #7f00ff; color: #fff;
+            border: none; border-radius: 5px; font-size: 16px; cursor: pointer; transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        .btn:hover { background-color: #ae00ff; box-shadow: 0 0 10px #ae00ff; }
+        #questionSection, #answerSection { display: none; margin-top: 20px; }
+        #shareLink {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #2c2c2c;
+            color: #e0e0e0;
+            border-radius: 5px;
+            border: 1px solid #555;
+            word-break: break-all;
+        }
+        #chat { margin-top: 30px; }
+        #chat h3 { margin-bottom: 10px; font-size: 18px; color: #ae00ff; text-shadow: 0 0 10px rgba(127, 0, 255, 0.5); }
+        #messageLog {
+            padding: 15px; background-color: #2a2a2a00; border-radius: 5px;
+            min-height: 150px; overflow-y: auto; border: 1px solid #333; color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Highest priest GPT</h1>
+        
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Enter your name">
+        </div>
+        
+        <button class="btn" id="joinBtn">Create a new channel as a wizard ✨</button>
+
+        <div id="questionSection">
+            <h3>Ask a Question</h3>
+            <div class="form-group">
+                <input type="text" id="question" placeholder="Type your question here">
+            </div>
+            <button class="btn" id="askBtn">Ask Question</button>
+        </div>
+
+        <div id="answerSection">
+            <h3>Answer the Question</h3>
+            <p id="displayQuestion">Waiting for a question...</p>
+            <div class="form-group">
+                <input type="text" id="answer" placeholder="Type your answer here">
+            </div>
+            <button class="btn" id="answerBtn">Send Answer</button>
+        </div>
+
+        <div id="shareLink">
+            <!-- Shareable link for questioner will appear here -->
+        </div>
+
+        <div id="chat">
+            <h3>Chat Log</h3>
+            <div id="messageLog"></div>
+        </div>
+    </div>
+
+    <!-- PubNub SDK -->
+    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.33.0.min.js"></script>
+    <script>
+        const pubnub = new PubNub({
+            publishKey: 'pub-c-a31ed9a8-8e6e-4c94-9229-3a2f94d4cf02',   // Replace with your PubNub publish key
+            subscribeKey: 'sub-c-8a324682-fdc4-43c3-8308-f76b6410eb1d' // Replace with your PubNub subscribe key
+        });
+
+        const usernameInput = document.getElementById('username');
+        const joinBtn = document.getElementById('joinBtn');
+        const questionSection = document.getElementById('questionSection');
+        const answerSection = document.getElementById('answerSection');
+        const questionInput = document.getElementById('question');
+        const askBtn = document.getElementById('askBtn');
+        const answerInput = document.getElementById('answer');
+        const answerBtn = document.getElementById('answerBtn');
+        const messageLog = document.getElementById('messageLog');
+        const shareLink = document.getElementById('shareLink');
+        let currentChannel = '';
+        let role = 'res';
+
+        // If the URL contains a channel and role, handle the questioner's flow
+        const queryParams = new URLSearchParams(window.location.search);
+        const isQuestioner = queryParams.has('channel') && queryParams.get('role') === 'ques'
+
+        // Generate a random channel name
+        function generateRandomChannel() {
+            return 'channel_' + Math.random().toString(36).substring(2, 10);
+        }
+
+        // Join the randomly generated channel as responder
+        joinBtn.addEventListener('click', () => {
+            const username = usernameInput.value;
+            if (!username) {
+                alert('Please enter your username');
+                return;
+            }
+
+            currentChannel = generateRandomChannel();
+            role = 'res'; // Default to responder
+
+            // Subscribe to the random channel
+            pubnub.subscribe({ channels: [currentChannel] });
+
+            // Display answer input for responder
+            questionSection.style.display = 'none';
+            answerSection.style.display = 'block';
+
+            // Generate and display shareable link for questioner
+            const shareableLink = `${window.location.origin}?channel=${currentChannel}&role=ques`;
+            shareLink.innerHTML = `Share this link with the questioner: <br> <a href="${shareableLink}">${shareableLink}</a>`;
+
+            // Notify the channel that the responder has joined
+            pubnub.publish({
+                channel: currentChannel,
+                message: { type: 'user_connected', username: username, role: role }
+            });
+        });
+
+        // Ask a question (for questioner)
+        askBtn.addEventListener('click', () => {
+            const question = questionInput.value;
+            pubnub.publish({
+                channel: currentChannel,
+                message: { type: 'ask_question', question: question }
+            });
+        });
+
+        // Send an answer (for responder)
+        answerBtn.addEventListener('click', () => {
+            const answer = answerInput.value;
+            pubnub.publish({
+                channel: currentChannel,
+                message: { type: 'send_answer', answer: answer }
+            });
+        });
+
+        // Listen for incoming messages
+        pubnub.addListener({
+            message: function(event) {
+                const msg = event.message;
+
+                if (msg.type === 'ask_question') {
+                    document.getElementById('displayQuestion').innerText = msg.question;
+                } else if (msg.type === 'send_answer') {
+                    messageLog.innerText += `Answer: ${msg.answer}\n`;
+                } else if (msg.type === 'user_connected' && !isQuestioner) {
+                    messageLog.innerText += `${msg.username} joined as ${msg.role}\n`;
+                }
+            }
+        });
+
+        if (isQuestioner) {
+            joinBtn.style.display = 'none';
+
+            currentChannel = queryParams.get('channel');
+            role = 'ques';
+
+            // Subscribe to the channel
+            pubnub.subscribe({ channels: [currentChannel] });
+
+            // Display question input for questioner
+            questionSection.style.display = 'block';
+            answerSection.style.display = 'none';
+
+            // Notify the channel that the questioner has joined
+            pubnub.publish({
+                channel: currentChannel,
+                message: { type: 'user_connected', username: 'ques', role: role }
+            });
+        }
+    </script>
+</body>
+</html>
