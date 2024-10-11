@@ -99,6 +99,8 @@
 
     <!-- PubNub SDK -->
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.33.0.min.js"></script>
+    <script src="ratelimit_msgs.js"></script>
+
     <script>
         const pubnub = new PubNub({
             publishKey: 'pub-c-a31ed9a8-8e6e-4c94-9229-3a2f94d4cf02',   // Replace with your PubNub publish key
@@ -156,21 +158,33 @@
             });
         });
 
-        // Ask a question (for questioner)
+       // Ask a question (for questioner)
         askBtn.addEventListener('click', () => {
-            const question = questionInput.value;
-            pubnub.publish({
-                channel: currentChannel,
-                message: { type: 'ask_question', question: question }
+            sendMessage(() => { // Call the rate limiting function
+                const question = questionInput.value;
+                if (question) {
+                    pubnub.publish({
+                        channel: currentChannel,
+                        message: { type: 'ask_question', question: question }
+                    });
+                } else {
+                    alert("Please enter a valid question.");
+                }
             });
         });
 
         // Send an answer (for responder)
         answerBtn.addEventListener('click', () => {
-            const answer = answerInput.value;
-            pubnub.publish({
-                channel: currentChannel,
-                message: { type: 'send_answer', answer: answer }
+            sendMessage(() => { // Call the rate limiting function
+                const answer = answerInput.value;
+                if (answer) {
+                    pubnub.publish({
+                        channel: currentChannel,
+                        message: { type: 'send_answer', answer: answer }
+                    });
+                } else {
+                    alert("Please enter a valid answer.");
+                }
             });
         });
 
