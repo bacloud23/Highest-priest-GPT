@@ -16,6 +16,9 @@ const shareLink = document.getElementById("shareLink");
 let currentChannel = "";
 let role = "res";
 
+let lastMessageTimestamp = 0;
+const MESSAGE_RATE_LIMIT_MS = 30000; 
+
 // If the URL contains a channel and role, handle the questioner's flow
 const queryParams = new URLSearchParams(window.location.search);
 const isQuestioner =
@@ -61,22 +64,47 @@ joinBtn.addEventListener("click", () => {
   });
 });
 
+function isRateLimited(){
+  const currentTime = Date.now();
+  return (currentTime - lastMessageTimestamp) < MESSAGE_RATE_LIMIT_MS;
+}
+
 // Ask a question (for questioner)
 askBtn.addEventListener("click", () => {
+  if(isRateLimited()) {
+    alert('Please wait before sending another message.');
+    return;
+}
   const question = questionInput.value;
+  if(!question) {
+    alert('Please enter a question.');
+    return;
+}
   pubnub.publish({
     channel: currentChannel,
     message: { type: "ask_question", question: question },
   });
+
+  lastMessageTimestamp = Date.now();
 });
 
 // Send an answer (for responder)
 answerBtn.addEventListener("click", () => {
+  if(isRateLimited()) {
+    alert('Please wait before sending another message.');
+    return;
+}
   const answer = answerInput.value;
+  if(!answer) {
+    alert('Please enter an answer.');
+    return;
+}
   pubnub.publish({
     channel: currentChannel,
     message: { type: "send_answer", answer: answer },
   });
+
+  lastMessageTimestamp = Date.now();
 });
 
 // Listen for incoming messages
