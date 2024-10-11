@@ -51,11 +51,16 @@ joinBtn.addEventListener("click", () => {
   const shareableLink = `${window.location.origin}?channel=${currentChannel}&role=ques`;
   shareLink.innerHTML = `
   <div>
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><path d="M10.046 14c-1.506-1.512-1.37-4.1.303-5.779l4.848-4.866c1.673-1.68 4.25-1.816 5.757-.305s1.37 4.1-.303 5.78l-2.424 2.433"/><path d="M13.954 10c1.506 1.512 1.37 4.1-.303 5.779l-2.424 2.433l-2.424 2.433c-1.673 1.68-4.25 1.816-5.757.305s-1.37-4.1.303-5.78l2.424-2.433" opacity=".5"/></g></svg>
-   Share this link with the questioner: 
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><path d="M10.046 14c-1.506-1.512-1.37-4.1.303-5.779l4.848-4.866c1.673-1.68 4.25-1.816 5.757-.305s1.37 4.1-.303 5.78l-2.424 2.433"/><path d="M13.954 10c1.506 1.512 1.37 4.1-.303 5.779l-2.424 2.433l-2.424 2.433c-1.673 1.68-4.25 1.816-5.757.305s-1.37-4.1.303-5.78l2.424-2.433" opacity=".5"/></g></svg>
+    <span data-translate="shareLink">Share this link with the questioner:</span>
   </div>
-  <br> 
-  <a class="shlink" href="${shareableLink}">${shareableLink}</a>`;
+  <div class="share-link-container">
+    <a class="shlink" href="${shareableLink}">${shareableLink}</a>
+    <button id="copyLinkBtn" class="btn copy-btn" data-translate="copyButton">Copy</button>
+  </div>`;
+
+  // Add event listener for the copy button
+  document.getElementById('copyLinkBtn').addEventListener('click', copyShareableLink);
 
   // Notify the channel that the responder has joined
   pubnub.publish({
@@ -148,3 +153,20 @@ if (isQuestioner) {
 document.addEventListener('DOMContentLoaded', () => {
     window.changeLanguage();
 });
+
+// Add this new function to handle copying the link
+function copyShareableLink() {
+  const linkElement = document.querySelector('#shareLink .shlink');
+  const link = linkElement.href;
+
+  navigator.clipboard.writeText(link).then(() => {
+    const copyBtn = document.getElementById('copyLinkBtn');
+    const originalText = copyBtn.textContent;
+    copyBtn.textContent = translations[currentLanguage].copied || 'Copied!';
+    setTimeout(() => {
+      copyBtn.textContent = originalText;
+    }, 2000);
+  }).catch(err => {
+    console.error('Failed to copy text: ', err);
+  });
+}

@@ -15,7 +15,9 @@ const translations = {
         shareLink: "Share this link with the questioner:",
         userJoined: "{username} joined as {role}",
         questioner: "questioner",
-        responder: "responder"
+        responder: "responder",
+        copyButton: "Copy",
+        copied: "Copied!"
     },
     hi: {
         title: "सर्वोच्च पुजारी GPT",
@@ -33,7 +35,9 @@ const translations = {
         shareLink: "प्रश्नकर्ता के साथ यह लिंक साझा करें:",
         userJoined: "{username} {role} के रूप में शामिल हुए",
         questioner: "प्रश्नकर्ता",
-        responder: "उत्तरदाता"
+        responder: "उत्तरदाता",
+        copyButton: "कॉपी करें",
+        copied: "कॉपी किया गया!"
     }
 };
 

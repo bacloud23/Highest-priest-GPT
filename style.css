@@ -268,3 +268,28 @@ h1 {
   outline: none;
   border-color: #9434ec;
 }
+
+.share-link-container {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.copy-btn {
+  margin-left: 10px;
+  padding: 5px 10px;
+  font-size: 14px;
+  width: auto; /* Changed from 100% to auto */
+  flex-shrink: 0; /* Prevent the button from shrinking */
+}
+
+.shlink {
+  flex-grow: 1;
+  word-break: break-all;
+  margin-right: 10px; /* Add some space between the link and the button */
+}
+
+/* Adjust the main .btn class to not affect the copy button */
+.btn:not(.copy-btn) {
+  width: 100%;
+}
