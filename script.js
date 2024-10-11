@@ -115,9 +115,11 @@ pubnub.addListener({
     if (msg.type === "ask_question") {
       document.getElementById("displayQuestion").innerText = msg.question;
     } else if (msg.type === "send_answer") {
-      messageLog.innerText += `Answer: ${msg.answer}\n`;
+      messageLog.innerText += `उत्तर: ${msg.answer}\n`;
     } else if (msg.type === "user_connected" && !isQuestioner) {
-      messageLog.innerText += `${msg.username} joined as ${msg.role}\n`;
+      messageLog.innerText += translations.hi.userJoined
+        .replace('{username}', msg.username)
+        .replace('{role}', msg.role === 'ques' ? translations.hi.questioner : translations.hi.responder) + '\n';
     }
   },
 });
@@ -141,3 +143,8 @@ if (isQuestioner) {
     message: { type: "user_connected", username: "ques", role: role },
   });
 }
+
+// Call changeLanguage when the DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    window.changeLanguage();
+});
