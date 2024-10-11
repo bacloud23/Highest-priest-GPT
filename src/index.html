@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Q&A Chat App (Random Channel)</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Highest priest GPT</h1>
+
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Enter your name" />
+      </div>
+
+      <button class="btn" id="joinBtn">
+        Create a new channel as a wizard ✨
+      </button>
+
+      <div id="questionSection">
+        <h3>Ask a Question</h3>
+        <div class="form-group">
+          <input
+            type="text"
+            id="question"
+            placeholder="Type your question here"
+          />
+        </div>
+        <button class="btn" id="askBtn">Ask Question</button>
+      </div>
+
+      <div id="answerSection">
+        <h3>Answer the Question</h3>
+        <p id="displayQuestion">Waiting for a question...</p>
+        <div class="form-group">
+          <input type="text" id="answer" placeholder="Type your answer here" />
+        </div>
+        <button class="btn" id="answerBtn">Send Answer</button>
+      </div>
+
+      <div id="shareLink">
+        <!-- Shareable link for questioner will appear here -->
+      </div>
+
+      <div id="chat">
+        <h3>Chat Log</h3>
+        <div id="messageLog"></div>
+      </div>
+    </div>
+
+    <!-- PubNub SDK -->
+    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.33.0.min.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>
