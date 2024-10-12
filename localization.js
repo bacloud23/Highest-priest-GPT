@@ -1,4 +1,17 @@
+// All language code is based on: https://www.science.co.il/language/Locale-codes.php
 const translations = {
+    af: undefined,
+    ar: undefined,
+    az: undefined,
+    be: undefined,
+    bg: undefined,
+    bn: undefined,
+    bs: undefined,
+    ca: undefined,
+    cs: undefined,
+    da: undefined,
+    de: undefined,
+    el: undefined,
     en: {
         title: "Highest priest GPT",
         username: "Username",
@@ -19,6 +32,12 @@ const translations = {
         copyButton: "Copy",
         copied: "Copied!"
     },
+    es: undefined,
+    et: undefined,
+    fa: undefined,
+    fi: undefined,
+    fr: undefined,
+    he: undefined,
     hi: {
         title: "सर्वोच्च पुजारी GPT",
         username: "उपयोगकर्ता नाम",
@@ -38,13 +57,69 @@ const translations = {
         responder: "उत्तरदाता",
         copyButton: "कॉपी करें",
         copied: "कॉपी किया गया!"
-    }
+    },
+    hr: undefined,
+    hu: undefined,
+    id: undefined,
+    it: undefined,
+    ja: undefined,
+    kk: undefined,
+    ko: undefined,
+    lt: undefined,
+    lv: undefined,
+    mk: undefined,
+    mn: undefined,
+    ms: undefined,
+    nb: undefined,
+    nl: undefined,
+    pl: undefined,
+    pt: undefined,
+    ro: undefined,
+    ru: undefined,
+    sk: undefined,
+    sl: undefined,
+    sq: undefined,
+    sr: undefined,
+    sv: undefined,
+    th: undefined,
+    tr: undefined,
+    uk: undefined,
+    ur: undefined,
+    uz: undefined,
+    vi: {
+        title: "Lãnh Chúa Tối Cao GPT",
+        username: "Tên Người dùng",
+        usernamePlaceholder: "Nhập tên của bạn",
+        createChannel: "Tạo kênh mới với vai trò Lãnh Chúa ✨",
+        askQuestion: "Câu hỏi của bạn",
+        questionPlaceholder: "Nhập câu hỏi của bạn ở đây",
+        askButton: "Đặt câu hỏi",
+        answerQuestion: "Trả lời câu hỏi",
+        waitingQuestion: "đang chờ câu hỏi...",
+        answerPlaceholder: "Nhập câu trả lời của bạn ở đây",
+        answerButton: "Gửi câu trả lời",
+        chatLog: "Thông tin trò chuyện",
+        shareLink: "Gửi liên kết với người muốn hỏi:",
+        userJoined: "{username} đã tham gia với vai trò {role}",
+        questioner: "người hỏi",
+        responder: "người trả lời",
+        copyButton: "Sao chép",
+        copied: "đã sao chép!"
+    },
+    zh: undefined
+};
+// This is where we define the available languages and their translations
+const languageOptions = {
+    "en": "English",
+    "hi": "हिन्दी",
+    "vi": "Tiếng Việt"    
 };
 
 let currentLanguage = 'en'; // Default to English
 
 function changeLanguage(lang) {
-    if (lang !== 'en' && lang !== 'hi') {
+    // Check if the selected language is available
+    if (translations[lang] === undefined) {
         lang = 'en'; // Default to English if an invalid language is selected
     }
     currentLanguage = lang;
@@ -105,6 +180,7 @@ function updateShareLink() {
         const linkText = translations[currentLanguage].shareLink;
         const link = shareLink.querySelector('a');
         if (link) {
+            link.setAttribute('target', '_blank');
             shareLink.innerHTML = `${linkText} <br> ${link.outerHTML}`;
         }
     }
@@ -112,14 +188,22 @@ function updateShareLink() {
 
 // Initialize language on page load
 document.addEventListener('DOMContentLoaded', () => {
-    const userLang = navigator.language || navigator.userLanguage;
-    const initialLang = userLang.startsWith('hi') ? 'hi' : 'en';
+    const userLang = navigator.language || navigator.userLanguage; 
+    const initialLang = userLang.split('-')[0];// Get the Language code
     changeLanguage(initialLang);
-    
-    // Set initial value of language selector
+    // Initialize language selector
     const languageSelector = document.getElementById('languageSelector');
     if (languageSelector) {
-        languageSelector.value = initialLang;
+        Object.keys(languageOptions).forEach(lang => {
+            const option = document.createElement('option');
+            option.value = lang;
+            option.textContent = languageOptions[lang];
+            languageSelector.appendChild(option);
+        });
+    }
+    // Set initial value of language selector
+    if (languageSelector) {
+        languageSelector.value = currentLanguage;
     }
 });
 
@@ -127,3 +211,4 @@ document.addEventListener('DOMContentLoaded', () => {
 window.changeLanguage = changeLanguage;
 window.currentLanguage = currentLanguage;
 window.translations = translations;
+window.languageOptions = languageOptions;

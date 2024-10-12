@@ -149,11 +149,6 @@ if (isQuestioner) {
   });
 }
 
-// Call changeLanguage when the DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    window.changeLanguage();
-});
-
 // Add this new function to handle copying the link
 function copyShareableLink() {
   const linkElement = document.querySelector('#shareLink .shlink');
