@@ -108,7 +108,7 @@ const translations = {
     },
     zh: undefined
 };
-
+// This is where we define the available languages and their translations
 const languageOptions = {
     "en": "English",
     "hi": "हिन्दी",
