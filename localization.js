@@ -108,7 +108,7 @@ const translations = {
     },
     zh: undefined
 };
-
+// This is where we define the available languages and their translations
 const languageOptions = {
     "en": "English",
     "hi": "हिन्दी",
@@ -180,6 +180,7 @@ function updateShareLink() {
         const linkText = translations[currentLanguage].shareLink;
         const link = shareLink.querySelector('a');
         if (link) {
+            link.setAttribute('target', '_blank');
             shareLink.innerHTML = `${linkText} <br> ${link.outerHTML}`;
         }
     }
