@@ -120,11 +120,11 @@ pubnub.addListener({
     if (msg.type === "ask_question") {
       document.getElementById("displayQuestion").innerText = msg.question;
     } else if (msg.type === "send_answer") {
-      messageLog.innerText += `उत्तर: ${msg.answer}\n`;
+      messageLog.innerText += `Answer: ${msg.answer}\n`;
     } else if (msg.type === "user_connected" && !isQuestioner) {
-      messageLog.innerText += translations.hi.userJoined
+      messageLog.innerText += translations.en.userJoined
         .replace('{username}', msg.username)
-        .replace('{role}', msg.role === 'ques' ? translations.hi.questioner : translations.hi.responder) + '\n';
+        .replace('{role}', msg.role === 'ques' ? translations.en.questioner : translations.en.responder) + '\n';
     }
   },
 });
