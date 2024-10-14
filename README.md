@@ -89,7 +89,7 @@ git push origin 'your-branch-name'
 ### 8. Submit Your Changes for Review
 
 Go to your forked repository on GitHub. You should see a **Compare & Pull Request** button. Click on it to submit your pull request (PR) for review.
-
+</details>
 
 
 ## Contributors
