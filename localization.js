@@ -134,7 +134,6 @@ function changeLanguage(lang) {
         }
     });
     updateShareLink();
-
     // Update button text
     if (document.getElementById('joinBtn')) document.getElementById('joinBtn').textContent = translations[lang].createChannel;
     if (document.getElementById('askBtn')) document.getElementById('askBtn').textContent = translations[lang].askButton;
@@ -180,7 +179,6 @@ function updateShareLink() {
         const linkText = translations[currentLanguage].shareLink;
         const link = shareLink.querySelector('a');
         if (link) {
-            link.setAttribute('target', '_blank');
             shareLink.innerHTML = `${linkText} <br> ${link.outerHTML}`;
         }
     }
