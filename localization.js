@@ -73,7 +73,26 @@ const translations = {
     nb: undefined,
     nl: undefined,
     pl: undefined,
-    pt: undefined,
+    pt: {
+        title: "Highest priest GPT",
+        username: "Nome de usuário",
+        usernamePlaceholder: "Digite seu nome",
+        createChannel: "Criar novo canal como mago ✨",
+        askQuestion: "Faça uma pergunta",
+        questionPlaceholder: "Digite sua pergunta aqui",
+        askButton: "Fazer Pergunta",
+        answerQuestion: "Responda a Pergunta",
+        waitingQuestion: "Esperando por uma pergunta...",
+        answerPlaceholder: "Digite sua pergunta aqui",
+        answerButton: "Enviar Resposta",
+        chatLog: "Log do Chat",
+        shareLink: "Compartilhe esse link com quem irá perguntar:",
+        userJoined: "{username} entrou como {role}",
+        questioner: "quem irá perguntar",
+        responder: "quem irá responder",
+        copyButton: "Copiar",
+        copied: "Copiado!"
+    },
     ro: undefined,
     ru: undefined,
     sk: undefined,
@@ -112,7 +131,8 @@ const translations = {
 const languageOptions = {
     "en": "English",
     "hi": "हिन्दी",
-    "vi": "Tiếng Việt"    
+    "vi": "Tiếng Việt",
+    "pt": "Português"   
 };
 
 let currentLanguage = 'en'; // Default to English
