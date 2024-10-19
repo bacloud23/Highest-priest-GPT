@@ -1,6 +1,6 @@
 const pubnub = new PubNub({
-	publishKey: "pub-c-17a877bf-855f-4e2f-a1ed-b2af60e3c46a", // Replace with your PubNub publish key
-	subscribeKey: "sub-c-39291fb1-662f-4bf1-89d1-db3dea8e0f9b", // Replace with your PubNub subscribe key
+	publishKey: "pub-c-a31ed9a8-8e6e-4c94-9229-3a2f94d4cf02", // Replace with your PubNub publish key
+	subscribeKey: "sub-c-8a324682-fdc4-43c3-8308-f76b6410eb1d", // Replace with your PubNub subscribe key
 });
 
 const usernameInput = document.getElementById("username");
@@ -17,7 +17,7 @@ let initStorage = {
 	role: "",
 	username: "",
 	messageLog: [],
-	latestMessage: null, // this will be used to check if the storage is expired
+	latestMessage: null, // latestMessage will be use to check if the storage is expired
 };
 let storage = null;
 let currentChannel = "";
@@ -36,25 +36,6 @@ function generateRandomChannel() {
 	return "channel_" + Math.random().toString(36).substring(2, 10);
 }
 
-if (isQuestioner) {
-	joinBtn.style.display = "none";
-
-	currentChannel = queryParams.get("channel");
-	role = "ques";
-
-	// Subscribe to the channel
-	pubnub.subscribe({ channels: [currentChannel] });
-
-	// Display question input for questioner
-	questionSection.style.display = "block";
-	answerSection.style.display = "none";
-
-	// Notify the channel that the questioner has joined
-	pubnub.publish({
-		channel: currentChannel,
-		message: { type: "user_connected", username: "ques", role: role },
-	});
-}
 // Join the randomly generated channel as responder
 joinBtn.addEventListener("click", () => {
 	const username = usernameInput.value;
@@ -96,15 +77,15 @@ joinBtn.addEventListener("click", () => {
 function getShareableLink(currentChannel) {
 	const shareableLink = `${window.location.origin}?channel=${currentChannel}&role=ques`;
 	return `
-  <div>
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><path d="M10.046 14c-1.506-1.512-1.37-4.1.303-5.779l4.848-4.866c1.673-1.68 4.25-1.816 5.757-.305s1.37 4.1-.303 5.78l-2.424 2.433"/><path d="M13.954 10c1.506 1.512 1.37 4.1-.303 5.779l-2.424 2.433l-2.424 2.433c-1.673 1.68-4.25 1.816-5.757.305s-1.37-4.1.303-5.78l2.424-2.433" opacity=".5"/></g></svg>
-    <span data-translate="shareLink">${translations[currentLanguage].shareLink}</span>
-  </div>
-  <div class="share-link-container">
-    <a class="shlink" target="_blank" href="${shareableLink}">${shareableLink}</a>
-    <button id="copyLinkBtn" class="btn copy-btn" data-translate="copyButton">${translations[currentLanguage].copyButton}</button>
-  </div>
-  `;
+	<div>
+		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><path d="M10.046 14c-1.506-1.512-1.37-4.1.303-5.779l4.848-4.866c1.673-1.68 4.25-1.816 5.757-.305s1.37 4.1-.303 5.78l-2.424 2.433"/><path d="M13.954 10c1.506 1.512 1.37 4.1-.303 5.779l-2.424 2.433l-2.424 2.433c-1.673 1.68-4.25 1.816-5.757.305s-1.37-4.1.303-5.78l2.424-2.433" opacity=".5"/></g></svg>
+		<span data-translate="shareLink">${translations[currentLanguage].shareLink}</span>
+	</div>
+	<div class="share-link-container">
+		<a class="shlink" target="_blank" href="${shareableLink}">${shareableLink}</a>
+		<button id="copyLinkBtn" class="btn copy-btn" data-translate="copyButton">${translations[currentLanguage].copyButton}</button>
+	</div>
+`;
 }
 
 function isRateLimited() {
@@ -156,9 +137,9 @@ answerBtn.addEventListener("click", () => {
 // Listen for incoming messages
 pubnub.addListener({
 	message: function (event) {
-		console.log(msg);
 		const msg = event.message;
 		const lang = currentLanguage;
+		console.log(msg);
 
 		if (msg.type === "ask_question") {
 			document.getElementById("displayQuestion").innerText = msg.question;
@@ -192,7 +173,6 @@ pubnub.addListener({
 		localStorage.setItem(currentChannel, JSON.stringify(storage));
 	},
 });
-
 if (isQuestioner) {
 	joinBtn.style.display = "none";
 
@@ -235,27 +215,33 @@ document.addEventListener("DOMContentLoaded", () => {
 		// Append shareable link
 		shareLink.innerHTML = getShareableLink(channelId);
 		document.getElementById("copyLinkBtn").addEventListener("click", copyShareableLink); // Add event listener for the copy button
-		// append message
-		storage.messageLog.forEach((message) => {
-			if (message.type === "user_connected") {
-				const lang = document.documentElement.lang;
-				const connectedMessage =
-					translations[lang].userJoined
-						.replace("{username}", message.username)
-						.replace("{role}", message.role === "ques" ? translations[lang].questioner : translations[lang].responder) + "\n";
-				messageLog.innerText += connectedMessage;
-			}
-			if (message.type === "send_answer") {
-				const answer = message.answer;
-				const answerMessage = `Answer: ${answer}\n`;
-				messageLog.innerText += answerMessage;
-			}
-		});
+
+		updateMessages();
 		// Reconnect to the channel
 		currentChannel = channelId;
 		pubnub.subscribe({ channels: [currentChannel] });
 	}
 });
+// Append messages from storage
+function updateMessages() {
+	if (!storage) return;
+	messageLog.innerText = ""; // clear message log
+	storage.messageLog.forEach((message) => {
+		if (message.type === "user_connected") {
+			const lang = document.documentElement.lang;
+			const connectedMessage =
+				translations[lang].userJoined
+					.replace("{username}", message.username)
+					.replace("{role}", message.role === "ques" ? translations[lang].questioner : translations[lang].responder) + "\n";
+			messageLog.innerText += connectedMessage;
+		}
+		if (message.type === "send_answer") {
+			const answer = message.answer;
+			const answerMessage = `Answer: ${answer}\n`;
+			messageLog.innerText += answerMessage;
+		}
+	});
+}
 // Add this new function to handle copying the link
 function copyShareableLink() {
 	const linkElement = document.querySelector("#shareLink .shlink");
@@ -278,3 +264,4 @@ function copyShareableLink() {
 
 // Expose necessary functions and variables to the global scope
 window.storage = storage;
+window.updateMessages = updateMessages;
