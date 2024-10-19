@@ -5,7 +5,26 @@ const translations = {
     az: undefined,
     be: undefined,
     bg: undefined,
-    bn: undefined,
+    bn: {
+        title: "Highest priest GPT",
+        username: "ব্যবহারকারীর নাম",
+        usernamePlaceholder: "আপনার নাম লিখুন",
+        createChannel: "জাদুকর হিসেবে একটি নতুন চ্যানেল তৈরি করুন ✨",
+        askQuestion: "প্রশ্ন জিজ্ঞাসা করুন",
+        questionPlaceholder: "আপনার প্রশ্ন এইখানে লিখুন",
+        askButton: "জিজ্ঞাসা করুন",
+        answerQuestion: "প্রশ্নের উত্তর দিন",
+        waitingQuestion: "প্রশ্নের জন্য অপেক্ষামান...",
+        answerPlaceholder: "আপনার উত্তর এইখানে লিখুন",
+        answerButton: "উত্তর পাঠান",
+        chatLog: "চ্যাট লগ",
+        shareLink: "এই লিংকটি প্রশ্নকারীর সাথে শেয়ার করুন:",
+        userJoined: "{username} {role} হিসেবে যুক্ত হয়েছেন",
+        questioner: "প্রশ্নকর্তা",
+        responder: "উত্তরদাতা",
+        copyButton: "কপি করুন",
+        copied: "কপি হয়েছে!"
+    },
     bs: undefined,
     ca: undefined,
     cs: undefined,
@@ -132,7 +151,8 @@ const languageOptions = {
     "en": "English",
     "hi": "हिन्दी",
     "vi": "Tiếng Việt",
-    "pt": "Português"   
+    "pt": "Português" ,  
+    "bn": "বাংলা"
 };
 
 let currentLanguage = 'en'; // Default to English
