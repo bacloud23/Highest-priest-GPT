@@ -1,6 +1,6 @@
 const pubnub = new PubNub({
-	publishKey: "pub-c-a31ed9a8-8e6e-4c94-9229-3a2f94d4cf02", // Replace with your PubNub publish key
-	subscribeKey: "sub-c-8a324682-fdc4-43c3-8308-f76b6410eb1d", // Replace with your PubNub subscribe key
+	publishKey: "pub-c-52bbf37f-54cb-4a10-8e5b-16f185f80b43", // Replace with your PubNub publish key
+	subscribeKey: "sub-c-ec8c91d7-5ac8-4f0f-bd3f-cb01e071aba8", // Replace with your PubNub subscribe key
 });
 
 const usernameInput = document.getElementById("username");
@@ -17,7 +17,7 @@ let initStorage = {
 	role: "",
 	username: "",
 	messageLog: [],
-	latestMessage: null, // latestMessage will be use to check if the storage is expired
+	latestMessage: 0, // latestMessage will be use to check if the storage is expired
 };
 let storage = null;
 let currentChannel = "";
@@ -55,8 +55,9 @@ joinBtn.addEventListener("click", () => {
 	answerSection.style.display = "block";
 
 	// reset storage for new channel
-	storage = JSON.parse(JSON.stringify(initStorage));
+	storage = {...initStorage};
 
+	messageLog.innerText = ""; // clear message log
 	shareLink.innerHTML = getShareableLink(currentChannel);
 	history.replaceState(null, "", `?channel=${currentChannel}&role=res`);
 	// Add event listener for the copy button
@@ -125,7 +126,6 @@ answerBtn.addEventListener("click", () => {
 		alert("Please enter an answer.");
 		return;
 	}
-	// send message
 	pubnub.publish({
 		channel: currentChannel,
 		message: { type: "send_answer", answer: answer },
@@ -139,10 +139,10 @@ pubnub.addListener({
 	message: function (event) {
 		const msg = event.message;
 		const lang = currentLanguage;
-		console.log(msg);
 
 		if (msg.type === "ask_question") {
 			document.getElementById("displayQuestion").innerText = msg.question;
+			if (!isQuestioner) lastMessageTimestamp = 0; // responder can answer the question
 			return;
 		}
 
@@ -153,6 +153,7 @@ pubnub.addListener({
 			messageLog.innerText += answerMessage;
 			// save message log using key for later translation
 			storage.messageLog.push(msg);
+			if (isQuestioner) lastMessageTimestamp = 0; // questioner can ask more questions
 		}
 
 		// user connected
@@ -169,10 +170,10 @@ pubnub.addListener({
 
 		// store lastestMessage
 		storage.latestMessage = Date.now();
-		storage.lang = lang;
 		localStorage.setItem(currentChannel, JSON.stringify(storage));
 	},
 });
+
 if (isQuestioner) {
 	joinBtn.style.display = "none";
 
@@ -181,7 +182,7 @@ if (isQuestioner) {
 
 	// Subscribe to the channel
 	pubnub.subscribe({ channels: [currentChannel] });
-
+	
 	// Display question input for questioner
 	questionSection.style.display = "block";
 	answerSection.style.display = "none";
@@ -192,6 +193,7 @@ if (isQuestioner) {
 		message: { type: "user_connected", username: "ques", role: role },
 	});
 }
+
 // Initialize language on page load
 document.addEventListener("DOMContentLoaded", () => {
 	// clear every local storage key that expired
@@ -205,11 +207,10 @@ document.addEventListener("DOMContentLoaded", () => {
 	}
 	// get storage logs
 	const channelId = queryParams.get("channel");
-	storage = JSON.parse(localStorage.getItem(channelId));
+	storage = JSON.parse(localStorage.getItem(channelId)) ??  {...initStorage};
+
 	if (storage) {
-		console.log(storage);
 		usernameInput.value = storage.username;
-		window.changeLanguage(storage.lang);
 		answerSection.style.display = !isQuestioner ? "block" : "none";
 		questionSection.style.display = isQuestioner ? "block" : "none";
 		// Append shareable link
@@ -219,7 +220,6 @@ document.addEventListener("DOMContentLoaded", () => {
 		updateMessages();
 		// Reconnect to the channel
 		currentChannel = channelId;
-		pubnub.subscribe({ channels: [currentChannel] });
 	}
 });
 // Append messages from storage
