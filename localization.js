@@ -173,7 +173,6 @@ function changeLanguage(lang) {
             }
         }
     });
-    updateShareLink();
     // Update button text
     if (document.getElementById('joinBtn')) document.getElementById('joinBtn').textContent = translations[lang].createChannel;
     if (document.getElementById('askBtn')) document.getElementById('askBtn').textContent = translations[lang].askButton;
@@ -210,17 +209,6 @@ function changeLanguage(lang) {
     const languageSelector = document.getElementById('languageSelector');
     if (languageSelector) {
         languageSelector.value = lang;
-    }
-}
-
-function updateShareLink() {
-    const shareLink = document.getElementById('shareLink');
-    if (shareLink.innerHTML) {
-        const linkText = translations[currentLanguage].shareLink;
-        const link = shareLink.querySelector('a');
-        if (link) {
-            shareLink.innerHTML = `${linkText} <br> ${link.outerHTML}`;
-        }
     }
 }
 

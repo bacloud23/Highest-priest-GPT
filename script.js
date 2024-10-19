@@ -1,6 +1,6 @@
 const pubnub = new PubNub({
-	publishKey: "pub-c-a31ed9a8-8e6e-4c94-9229-3a2f94d4cf02", // Replace with your PubNub publish key
-	subscribeKey: "sub-c-8a324682-fdc4-43c3-8308-f76b6410eb1d", // Replace with your PubNub subscribe key
+	publishKey: "pub-c-17a877bf-855f-4e2f-a1ed-b2af60e3c46a", // Replace with your PubNub publish key
+	subscribeKey: "sub-c-39291fb1-662f-4bf1-89d1-db3dea8e0f9b", // Replace with your PubNub subscribe key
 });
 
 const usernameInput = document.getElementById("username");
@@ -22,6 +22,7 @@ let initStorage = {
 let storage = null;
 let currentChannel = "";
 let role = "res";
+
 let lastMessageTimestamp = 0;
 const MESSAGE_RATE_LIMIT_MS = 30000;
 const EXPIRE_TIME = 86400000;
@@ -73,12 +74,10 @@ joinBtn.addEventListener("click", () => {
 	answerSection.style.display = "block";
 
 	// reset storage for new channel
-	// init new storage
 	storage = JSON.parse(JSON.stringify(initStorage));
 
-	// Generate and display shareable link for questioner
-	history.replaceState(null, "", `?channel=${currentChannel}&role=res`);
 	shareLink.innerHTML = getShareableLink(currentChannel);
+	history.replaceState(null, "", `?channel=${currentChannel}&role=res`);
 	// Add event listener for the copy button
 	document.getElementById("copyLinkBtn").addEventListener("click", copyShareableLink);
 
@@ -93,6 +92,7 @@ joinBtn.addEventListener("click", () => {
 	});
 });
 
+// Generate and display shareable link for questioner
 function getShareableLink(currentChannel) {
 	const shareableLink = `${window.location.origin}?channel=${currentChannel}&role=ques`;
 	return `
@@ -155,11 +155,11 @@ answerBtn.addEventListener("click", () => {
 
 // Listen for incoming messages
 pubnub.addListener({
-	message: function newMessage(event) {
+	message: function (event) {
 		console.log(msg);
 		const msg = event.message;
 		const lang = currentLanguage;
-		// questioner ask question
+
 		if (msg.type === "ask_question") {
 			document.getElementById("displayQuestion").innerText = msg.question;
 			return;
@@ -173,6 +173,7 @@ pubnub.addListener({
 			// save message log using key for later translation
 			storage.messageLog.push(msg);
 		}
+
 		// user connected
 		if (msg.type === "user_connected" && !isQuestioner) {
 			const { username, role } = msg;
@@ -192,6 +193,25 @@ pubnub.addListener({
 	},
 });
 
+if (isQuestioner) {
+	joinBtn.style.display = "none";
+
+	currentChannel = queryParams.get("channel");
+	role = "ques";
+
+	// Subscribe to the channel
+	pubnub.subscribe({ channels: [currentChannel] });
+
+	// Display question input for questioner
+	questionSection.style.display = "block";
+	answerSection.style.display = "none";
+
+	// Notify the channel that the questioner has joined
+	pubnub.publish({
+		channel: currentChannel,
+		message: { type: "user_connected", username: "ques", role: role },
+	});
+}
 // Initialize language on page load
 document.addEventListener("DOMContentLoaded", () => {
 	// clear every local storage key that expired
