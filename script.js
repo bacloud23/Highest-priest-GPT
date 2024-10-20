@@ -1,6 +1,6 @@
 const pubnub = new PubNub({
-	publishKey: "pub-c-52bbf37f-54cb-4a10-8e5b-16f185f80b43", // Replace with your PubNub publish key
-	subscribeKey: "sub-c-ec8c91d7-5ac8-4f0f-bd3f-cb01e071aba8", // Replace with your PubNub subscribe key
+	publishKey: "pub-c-a31ed9a8-8e6e-4c94-9229-3a2f94d4cf02", // Replace with your PubNub publish key
+	subscribeKey: "sub-c-8a324682-fdc4-43c3-8308-f76b6410eb1d", // Replace with your PubNub subscribe key
 });
 
 const usernameInput = document.getElementById("username");
@@ -55,7 +55,7 @@ joinBtn.addEventListener("click", () => {
 	answerSection.style.display = "block";
 
 	// reset storage for new channel
-	storage = {...initStorage};
+	storage = { ...initStorage };
 
 	messageLog.innerText = ""; // clear message log
 	shareLink.innerHTML = getShareableLink(currentChannel);
@@ -170,7 +170,7 @@ pubnub.addListener({
 
 		// store lastestMessage
 		storage.latestMessage = Date.now();
-		localStorage.setItem(currentChannel, JSON.stringify(storage));
+		localStorage.setItem(currentChannel + role, JSON.stringify(storage));
 	},
 });
 
@@ -182,7 +182,7 @@ if (isQuestioner) {
 
 	// Subscribe to the channel
 	pubnub.subscribe({ channels: [currentChannel] });
-	
+
 	// Display question input for questioner
 	questionSection.style.display = "block";
 	answerSection.style.display = "none";
@@ -196,7 +196,12 @@ if (isQuestioner) {
 
 // Initialize language on page load
 document.addEventListener("DOMContentLoaded", () => {
-	// clear every local storage key that expired
+	clearExpiredChannel();
+	getStorageLogs();
+});
+
+// clear every local storage key that expired
+function clearExpiredChannel() {
 	for (let i = 0; i < localStorage.length; i++) {
 		const key = localStorage.key(i);
 		if (!key.startsWith("channel")) continue; // skip non channel keys
@@ -205,25 +210,38 @@ document.addEventListener("DOMContentLoaded", () => {
 			localStorage.removeItem(key);
 		}
 	}
-	// get storage logs
-	const channelId = queryParams.get("channel");
-	storage = JSON.parse(localStorage.getItem(channelId)) ??  {...initStorage};
+}
 
-	if (storage) {
+// get storage logs for the current channel
+function getStorageLogs() {
+	const channel = queryParams.get("channel");
+	const channelRole = queryParams.get("role");
+	storage = JSON.parse(localStorage.getItem(channel + channelRole));
+	
+	if(storage == null) {
+		storage = { ...initStorage };
+		return;
+	}
+
+	if (channel == null || role == null) {
+		// set back all the data
 		usernameInput.value = storage.username;
+		role = storage.role;
 		answerSection.style.display = !isQuestioner ? "block" : "none";
 		questionSection.style.display = isQuestioner ? "block" : "none";
 		// Append shareable link
-		shareLink.innerHTML = getShareableLink(channelId);
-		document.getElementById("copyLinkBtn").addEventListener("click", copyShareableLink); // Add event listener for the copy button
+		if (!isQuestioner) {
+			shareLink.innerHTML = getShareableLink(channel);
+			document.getElementById("copyLinkBtn").addEventListener("click", copyShareableLink); // Add event listener for the copy button
+		}
 
 		updateMessages();
-		// Reconnect to the channel
-		currentChannel = channelId;
+		
+		currentChannel = channel;
 	}
-});
+}
 // Append messages from storage
-function updateMessages() {
+function updateMessages(storage) {
 	if (!storage) return;
 	messageLog.innerText = ""; // clear message log
 	storage.messageLog.forEach((message) => {
@@ -263,5 +281,4 @@ function copyShareableLink() {
 }
 
 // Expose necessary functions and variables to the global scope
-window.storage = storage;
 window.updateMessages = updateMessages;

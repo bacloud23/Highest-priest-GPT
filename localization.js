@@ -212,12 +212,24 @@ function changeLanguage(lang) {
 	}
 
     //save language to local storage
-    localStorage.setItem('savedLanguage', JSON.stringify(lang));
+	localStorage.setItem("savedLanguage", JSON.stringify(lang));
 }
+
+// function updateShareLink() {
+//     const shareLink = document.getElementById('shareLink');
+//     if (shareLink.innerHTML) {
+//         const linkText = translations[currentLanguage].shareLink;
+//         const link = shareLink.querySelector('a');
+//         if (link) {
+//             link.setAttribute('target', '_blank');
+//             shareLink.innerHTML = `${linkText} <br> ${link.outerHTML}`;
+//         }
+//     }
+// }
 
 // Initialize language on page load
 document.addEventListener("DOMContentLoaded", () => {
-	const savedLanguage = JSON.parse(localStorage.getItem('savedLanguage'));
+	const savedLanguage = JSON.parse(localStorage.getItem("savedLanguage"));
 	if (!savedLanguage) {
 		const userLang = navigator.language || navigator.userLanguage;
 		const initialLang = userLang.split("-")[0]; // Get the Language code
