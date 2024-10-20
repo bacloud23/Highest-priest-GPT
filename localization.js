@@ -204,6 +204,8 @@ function changeLanguage(lang) {
 
 	// Update HTML lang attribute
 	document.documentElement.lang = lang;
+	
+	window.updateMessages(storage);
 
 	// Update language selector
 	const languageSelector = document.getElementById("languageSelector");
@@ -213,6 +215,7 @@ function changeLanguage(lang) {
 
     //save language to local storage
 	localStorage.setItem("savedLanguage", JSON.stringify(lang));
+
 }
 
 // function updateShareLink() {

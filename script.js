@@ -25,7 +25,7 @@ let role = "res";
 
 let lastMessageTimestamp = 0;
 const MESSAGE_RATE_LIMIT_MS = 30000;
-const EXPIRE_TIME = 86400000;
+const EXPIRE_TIME = 86400000; // 24 hours
 
 // If the URL contains a channel and role, handle the questioner's flow
 const queryParams = new URLSearchParams(window.location.search);
@@ -223,7 +223,7 @@ function getStorageLogs() {
 		return;
 	}
 
-	if (channel == null || role == null) {
+	if (channel != null && role != null) {
 		// set back all the data
 		usernameInput.value = storage.username;
 		role = storage.role;
@@ -235,7 +235,7 @@ function getStorageLogs() {
 			document.getElementById("copyLinkBtn").addEventListener("click", copyShareableLink); // Add event listener for the copy button
 		}
 
-		updateMessages();
+		updateMessages(storage);
 		
 		currentChannel = channel;
 	}
