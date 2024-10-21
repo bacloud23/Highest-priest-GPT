@@ -183,9 +183,6 @@ if (isQuestioner) {
   // Subscribe to the channel
   pubnub.subscribe({ channels: [currentChannel] });
 
-  // Show the explanatory message for questioners
-  document.getElementById("explanatory-message").style.display = "block"; // Show the explanatory message
-
   // Display question input for questioner
   questionSection.style.display = "block";
   answerSection.style.display = "none";
@@ -195,6 +192,9 @@ if (isQuestioner) {
     channel: currentChannel,
     message: { type: "user_connected", username: "ques", role: role },
   });
+} else {
+    // Show the explanatory message for questioners
+    document.getElementById("explanatory-message").style.display = "block"; // Show the explanatory message
 }
 
 // Initialize language on page load
