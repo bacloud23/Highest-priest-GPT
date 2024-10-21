@@ -183,6 +183,9 @@ if (isQuestioner) {
   // Subscribe to the channel
   pubnub.subscribe({ channels: [currentChannel] });
 
+  // Show the explanatory message for questioners
+  document.getElementById("explanatory-message").style.display = "block"; // Show the explanatory message
+
   // Display question input for questioner
   questionSection.style.display = "block";
   answerSection.style.display = "none";
